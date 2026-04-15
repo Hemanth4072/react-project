@@ -1,141 +1,248 @@
-You are a senior full-stack developer.
+# 🌍 Smart Timezone Meeting Planner
 
-Build a production-ready web application called **Smart Timezone Meeting Planner** using modern best practices.
+A modern web application that helps users find the best overlapping meeting times across multiple time zones using the **Temporal API**.
 
-## 🎯 Goal
+---
 
-Create a web app that helps users find the best overlapping meeting time across multiple time zones using the JavaScript Temporal API.
+## 🚀 Live Idea
+
+Planning meetings across different countries is painful:
+
+* Timezones are confusing
+* Daylight Saving Time (DST) breaks logic
+* Manual calculations are error-prone
+
+This app solves that by using the **Temporal API** for accurate, reliable time calculations.
+
+---
+
+## 🎯 Features
+
+### 👥 Add Participants
+
+* Add multiple users dynamically
+* Each participant includes:
+
+  * Name
+  * Timezone (IANA format, e.g. `Asia/Kolkata`)
+  * Working hours (start & end)
+
+---
+
+### ⏱ Smart Timezone Handling
+
+* Uses `Temporal.ZonedDateTime`
+* Converts all times to UTC for comparison
+* Automatically handles DST (no manual offsets)
+
+---
+
+### 🔄 Overlap Detection
+
+* Finds common available time across all participants
+* Displays:
+
+  * Overlap time range
+  * Total duration
+
+---
+
+### 💡 Smart Suggestions
+
+* Suggests top 3 meeting slots
+* Prioritizes:
+
+  * Maximum overlap duration
+  * Comfortable times (avoids very early/late hours)
+
+---
+
+### 🖥 Clean UI
+
+* Built with React + Tailwind CSS
+* Add/remove participants dynamically
+* Displays results as cards or timeline
+* Shows each participant’s **local time**
+
+---
+
+### ⚠️ Edge Case Handling
+
+* Different days across timezones
+* Midnight crossing
+* No overlap scenarios
+* Daylight Saving Time changes
 
 ---
 
 ## 🛠 Tech Stack
 
-* Frontend: React (functional components + hooks)
-* Styling: Tailwind CSS (clean modern UI)
-* State: useState + useMemo (no Redux)
-* Time Handling: @js-temporal/polyfill
-* Optional Backend: Node.js + Express (if needed for persistence)
-
----
-
-## 📦 Features
-
-### 1. Add Participants
-
-* User can add multiple participants
-* Each participant has:
-
-  * Name
-  * Timezone (dropdown of IANA timezones like "Asia/Kolkata", "America/New_York")
-  * Working hours (start time, end time)
-
----
-
-### 2. Timezone Handling (IMPORTANT)
-
-* Use Temporal.ZonedDateTime for all time calculations
-* Convert all working hours into a common reference (UTC)
-* Handle DST automatically (no manual offsets)
-
----
-
-### 3. Find Overlapping Time
-
-* Calculate overlapping time slots across all participants
-* Show:
-
-  * Exact overlapping range
-  * Duration of overlap
-* If no overlap exists, show a clear message
-
----
-
-### 4. Smart Suggestions
-
-* Suggest best meeting slots (top 3)
-* Prefer:
-
-  * Maximum overlap duration
-  * Mid-range time (avoid very early/late times)
-
----
-
-### 5. UI Requirements
-
-* Clean modern dashboard
-* Add/remove participants dynamically
-* Display results in:
-
-  * Timeline view OR simple cards
-* Show each participant’s local time alongside overlap
-
----
-
-### 6. Edge Cases
-
-* Different days across timezones
-* Midnight crossing
-* No overlap
-* Daylight Saving Time changes
-
----
-
-## 🧠 Core Logic Requirements
-
-* Use Temporal.Now.zonedDateTimeISO() for current time
-* Use Temporal.PlainTime for working hours
-* Convert to Temporal.ZonedDateTime before comparison
-* Use .withTimeZone() for conversions
-* Use Temporal.Duration for overlap calculation
+| Layer        | Technology            |
+| ------------ | --------------------- |
+| Frontend     | React (Hooks)         |
+| Styling      | Tailwind CSS          |
+| State        | useState, useMemo     |
+| Time Logic   | @js-temporal/polyfill |
+| Optional API | Node.js + Express     |
 
 ---
 
 ## 📁 Folder Structure
 
+```
 /src
-/components
-ParticipantForm.jsx
-TimeOverlapResult.jsx
-TimezoneSelector.jsx
-/utils
-timeUtils.js
-App.jsx
+  /components
+    ParticipantForm.jsx
+    TimezoneSelector.jsx
+    TimeOverlapResult.jsx
+
+  /utils
+    timeUtils.js
+
+  App.jsx
+```
 
 ---
 
-## ⚙️ Deliverables
+## ⚙️ How It Works
 
-1. Complete working React app
-2. Clean reusable components
-3. Utility functions for:
+### Step 1: Capture User Input
 
-   * Time conversion
-   * Overlap calculation
-4. Sample default participants for demo
-5. Comments explaining Temporal usage clearly
+Participants enter their:
+
+* Timezone
+* Working hours
 
 ---
 
-## 🎁 Bonus (if possible)
+### Step 2: Convert to Zoned Time
 
-* Dark mode toggle
-* Persist data in localStorage
-* Mobile responsive layout
+```js
+Temporal.ZonedDateTime.from()
+```
 
----
-
-## 🚨 Important Instructions
-
-* Do NOT use JavaScript Date
-* Use only Temporal API for all time logic
-* Keep code clean, readable, and modular
-* Add comments explaining key logic
+Each participant’s local time is converted into a timezone-aware object.
 
 ---
 
-Generate:
+### Step 3: Normalize to UTC
 
-1. Full React code
-2. Utility functions (Temporal logic)
-3. Example usage
-4. Brief explanation of how overlap logic works
+```js
+zdt.withTimeZone("UTC")
+```
+
+All times are aligned to a common reference.
+
+---
+
+### Step 4: Calculate Overlap
+
+```js
+start = max(all start times)
+end   = min(all end times)
+```
+
+* If `start < end` → ✅ overlap exists
+* Else → ❌ no overlap
+
+---
+
+### Step 5: Compute Duration
+
+```js
+duration = end.since(start)
+```
+
+---
+
+## 🧪 Example
+
+| Name    | Timezone         | Working Hours |
+| ------- | ---------------- | ------------- |
+| Hemanth | Asia/Kolkata     | 09:00–18:00   |
+| John    | America/New_York | 09:00–17:00   |
+
+👉 App calculates:
+
+* Common time window (if exists)
+* Best meeting suggestions
+
+---
+
+## 🧠 Why Temporal API?
+
+Traditional `Date` has issues:
+
+* ❌ Timezone bugs
+* ❌ DST inconsistencies
+* ❌ Hard to maintain
+
+**Temporal solves this:**
+
+* ✔ Built-in timezone awareness
+* ✔ Immutable objects
+* ✔ Accurate calculations
+
+---
+
+## 🎁 Bonus Features
+
+* 🌙 Dark Mode
+* 💾 localStorage persistence
+* 📱 Fully responsive design
+
+---
+
+## 📦 Installation
+
+```bash
+git clone https://github.com/your-username/smart-timezone-planner.git
+cd smart-timezone-planner
+npm install
+npm run dev
+```
+
+---
+
+## 🔧 Usage
+
+1. Add participants
+2. Select timezones
+3. Enter working hours
+4. View overlapping time + suggestions
+
+---
+
+## 🚨 Important Notes
+
+* This project **does NOT use JavaScript Date**
+* All calculations are done using Temporal
+* Designed to handle real-world timezone complexity
+
+---
+
+## 📌 Future Improvements
+
+* Google Calendar integration
+* Meeting booking links
+* AI-based smart scheduling
+* Team availability heatmaps
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+Feel free to fork the repo and submit a PR.
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## 💡 Author
+
+Built with focus on real-world problem solving and clean architecture.
